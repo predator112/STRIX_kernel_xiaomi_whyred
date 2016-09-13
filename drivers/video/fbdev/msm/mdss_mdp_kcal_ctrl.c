@@ -234,32 +234,6 @@ static void mdss_mdp_kcal_update_pcc(struct kcal_lut_data *lut_data)
 	kfree(payload);
 }
 
-<<<<<<< HEAD
-static void mdss_mdp_kcal_read_pcc(struct kcal_lut_data *lut_data)
-{
-	u32 copyback = 0;
-	struct mdp_pcc_cfg_data pcc_config;
-
-	memset(&pcc_config, 0, sizeof(struct mdp_pcc_cfg_data));
-
-	pcc_config.block = MDP_LOGICAL_BLOCK_DISP_0;
-	pcc_config.ops = MDP_PP_OPS_READ;
-
-	mdss_mdp_pcc_config(fb0_ctl->mfd, &pcc_config, &copyback);
-
-	/* LiveDisplay disables pcc when using default values and regs
-	 * are zeroed on pp resume, so throw these values out.
-	 */
-	if (!pcc_config.r.r && !pcc_config.g.g && !pcc_config.b.b)
-		return;
-
-	lut_data->red = pcc_config.r.r / PCC_ADJ;
-	lut_data->green = pcc_config.g.g / PCC_ADJ;
-	lut_data->blue = pcc_config.b.b / PCC_ADJ;
-}
-
-=======
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 static void mdss_mdp_kcal_update_pa(struct kcal_lut_data *lut_data)
 {
 	u32 copyback = 0;
@@ -349,19 +323,6 @@ static void mdss_mdp_kcal_update_igc(struct kcal_lut_data *lut_data)
 	kfree(payload);
 }
 
-<<<<<<< HEAD
-static void mdss_mdp_kcal_check_pcc(struct kcal_lut_data *lut_data)
-{
-	lut_data->red = lut_data->red < lut_data->minimum ?
-		lut_data->minimum : lut_data->red;
-	lut_data->green = lut_data->green < lut_data->minimum ?
-		lut_data->minimum : lut_data->green;
-	lut_data->blue = lut_data->blue < lut_data->minimum ?
-		lut_data->minimum : lut_data->blue;
-}
-
-=======
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 						const char *buf, size_t count)
 {
@@ -377,11 +338,6 @@ static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 	lut_data->green = kcal_g;
 	lut_data->blue = kcal_b;
 
-<<<<<<< HEAD
-	mdss_mdp_kcal_check_pcc(lut_data);
-
-=======
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	if (mdss_mdp_kcal_is_panel_on())
 		mdss_mdp_kcal_update_pcc(lut_data);
 	else
@@ -395,12 +351,6 @@ static ssize_t kcal_show(struct device *dev, struct device_attribute *attr,
 {
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
-<<<<<<< HEAD
-	if (mdss_mdp_kcal_is_panel_on() && lut_data->enable)
-		mdss_mdp_kcal_read_pcc(lut_data);
-
-=======
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	return scnprintf(buf, PAGE_SIZE, "%d %d %d\n",
 		lut_data->red, lut_data->green, lut_data->blue);
 }
@@ -449,11 +399,7 @@ static ssize_t kcal_enable_store(struct device *dev,
 	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pcc(lut_data);
 		mdss_mdp_kcal_update_pa(lut_data);
-<<<<<<< HEAD
 		//mdss_mdp_kcal_update_igc(lut_data);
-=======
-		mdss_mdp_kcal_update_igc(lut_data);
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	} else
 		lut_data->queue_changes = true;
 
@@ -479,17 +425,8 @@ static ssize_t kcal_invert_store(struct device *dev,
 		(lut_data->invert == kcal_invert))
 		return -EINVAL;
 
-<<<<<<< HEAD
 	//disable
 	lut_data->invert = 0;
-=======
-	lut_data->invert = kcal_invert;
-
-	if (mdss_mdp_kcal_is_panel_on())
-		mdss_mdp_kcal_update_igc(lut_data);
-	else
-		lut_data->queue_changes = true;
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 
 	return count;
 }
@@ -696,11 +633,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 	ret = mmi_panel_register_notifier(&lut_data->panel_nb);
 	if (ret) {
 		pr_err("%s: unable to register MMI notifier\n", __func__);
-<<<<<<< HEAD
-		goto out_free_mem;
-=======
 		return ret;
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	}
 #elif defined(CONFIG_FB)
 	lut_data->dev = pdev->dev;
@@ -708,11 +641,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 	ret = fb_register_client(&lut_data->panel_nb);
 	if (ret) {
 		pr_err("%s: unable to register fb notifier\n", __func__);
-<<<<<<< HEAD
-		goto out_free_mem;
-=======
 		return ret;
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	}
 #endif
 
@@ -737,12 +666,6 @@ out_notifier:
 #elif defined(CONFIG_FB)
 	fb_unregister_client(&lut_data->panel_nb);
 #endif
-<<<<<<< HEAD
-	kfree(lut_data);
-out_free_mem:
-	kfree(lut_data);
-=======
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	return ret;
 }
 
@@ -764,11 +687,7 @@ static int kcal_ctrl_remove(struct platform_device *pdev)
 #elif defined(CONFIG_FB)
 	fb_unregister_client(&lut_data->panel_nb);
 #endif
-<<<<<<< HEAD
-	kfree(lut_data);
-=======
 
->>>>>>> 53f750904c0e... mdss mdp: kcal for mdss_mdp_v1_7
 	return 0;
 }
 
